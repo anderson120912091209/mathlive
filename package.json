@@ -1,49 +1,48 @@
 {
-  "name": "mathlive",
-  "version": "0.107.1",
+  "name": "@anderson120912091209/mathlive-custom",
+  "version": "1.0.3",
   "description": "A web component for math input",
   "license": "MIT",
   "funding": {
     "type": "individual",
     "url": "https://paypal.me/arnogourdol"
   },
-  "private": true,
   "files": [
     "/dist"
   ],
-  "types": "./types/mathlive.d.ts",
-  "module": "./mathlive.min.mjs",
-  "main": "./mathlive.min.js",
+  "types": "./dist/types/mathlive.d.ts",
+  "module": "./dist/mathlive.min.mjs",
+  "main": "./dist/mathlive.min.js",
   "exports": {
-    "./vue": "./vue-mathlive.mjs",
-    "./fonts.css": "./mathlive-fonts.css",
-    "./static.css": "./mathlive-static.css",
+    "./vue": "./dist/vue-mathlive.mjs",
+    "./fonts.css": "./dist/mathlive-fonts.css",
+    "./static.css": "./dist/mathlive-static.css",
     ".": {
       "browser": {
         "production": {
-          "types": "./types/mathlive.d.ts",
-          "import": "./mathlive.min.mjs",
-          "require": "./mathlive.min.js"
+          "types": "./dist/types/mathlive.d.ts",
+          "import": "./dist/mathlive.min.mjs",
+          "require": "./dist/mathlive.min.js"
         },
         "development": {
-          "types": "./types/mathlive.d.ts",
-          "import": "./mathlive.mjs",
-          "require": "./mathlive.js"
+          "types": "./dist/types/mathlive.d.ts",
+          "import": "./dist/mathlive.mjs",
+          "require": "./dist/mathlive.js"
         }
       },
       "node": {
-        "types": "./types/mathlive-ssr.d.ts",
-        "import": "./mathlive-ssr.min.mjs"
+        "types": "./dist/types/mathlive-ssr.d.ts",
+        "import": "./dist/mathlive-ssr.min.mjs"
       },
       "default": {
-        "types": "./types/mathlive.d.ts",
-        "import": "./mathlive.min.mjs",
-        "require": "./mathlive.min.js"
+        "types": "./dist/types/mathlive.d.ts",
+        "import": "./dist/mathlive.min.mjs",
+        "require": "./dist/mathlive.min.js"
       }
     },
     "./ssr": {
-      "types": "./types/mathlive-ssr.d.ts",
-      "import": "./mathlive-ssr.min.mjs"
+      "types": "./dist/types/mathlive-ssr.d.ts",
+      "import": "./dist/mathlive-ssr.min.mjs"
     }
   },
   "repository": {
@@ -132,11 +131,17 @@
   },
   "devDependencies": {
     "@arnog/esbuild-plugin-less": "^1.1.0",
+    "@blocknote/core": "^0.41.1",
+    "@blocknote/mantine": "^0.41.1",
+    "@blocknote/react": "^0.41.1",
     "@cortex-js/prettier-config": "^1.2.0",
     "@playwright/test": "^1.43.0",
     "@types/jest": "^29.5.12",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.26.1",
+    "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.17",
     "concat-md": "^0.5.1",
     "cssnano": "^6.0.3",
@@ -152,10 +157,13 @@
     "postcss": "^8.4.35",
     "postcss-cli": "^11.0.0",
     "prettier": "^3.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "ts-jest": "^29.3.0",
     "typedoc": "^0.28.2",
     "typedoc-plugin-markdown": "^4.4.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vite": "^7.2.4"
   },
   "keywords": [
     "math",

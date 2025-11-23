@@ -557,6 +557,30 @@ export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
   return ENVIRONMENTS[name] ?? null;
 }
 
+// Natural language aliases for LaTeX commands
+const NATURAL_LANGUAGE_ALIASES: Record<string, string[]> = {
+  'cross': ['\\times'],
+  'multiply': ['\\times', '\\cdot'],
+  'dot': ['\\cdot'],
+  'times': ['\\times'],
+  'divide': ['\\div', '\\frac'],
+  'fraction': ['\\frac'],
+  'integral': ['\\int', '\\iint', '\\iiint'],
+  'sum': ['\\sum'],
+  'product': ['\\prod'],
+  'infinity': ['\\infty'],
+  'inf': ['\\infty'],
+  'approximately': ['\\approx'],
+  'approx': ['\\approx'],
+  'less': ['\\lt', '\\leq'],
+  'greater': ['\\gt', '\\geq'],
+  'equal': ['\\eq', '\\equiv'],
+  'not': ['\\neg', '\\lnot'],
+  'and': ['\\land', '\\wedge'],
+  'or': ['\\lor', '\\vee'],
+  'arrow': ['\\rightarrow', '\\leftarrow'],
+};
+
 /**
  * Return an array of suggestion for completing string 's'.
  * For example, for '\si', it could return ['\sin', '\sinh', '\sim', 'simeq', '\sigma']
@@ -566,6 +590,17 @@ export function suggest(mf: _Mathfield, s: string): string[] {
   if (s.length === 0 || s === '\\' || !s.startsWith('\\')) return [];
 
   const result: { match: string; frequency: number }[] = [];
+
+  // Check natural language aliases first
+  const searchTerm = s.substring(1).toLowerCase();
+  for (const [alias, commands] of Object.entries(NATURAL_LANGUAGE_ALIASES)) {
+    if (alias.startsWith(searchTerm)) {
+      for (const cmd of commands) {
+        const fullCmd = cmd.startsWith('\\') ? cmd : '\\' + cmd;
+        result.push({ match: fullCmd, frequency: 10000 });
+      }
+    }
+  }
 
   // Iterate over items in the dictionary
   for (const p in LATEX_COMMANDS) {
@@ -584,13 +619,47 @@ export function suggest(mf: _Mathfield, s: string): string[] {
   for (const p of Object.keys(mf.options.macros))
     if (p.startsWith(command)) result.push({ match: '\\' + p, frequency: 0 });
 
+  // Greek letter groupings - show related variants
+  const greekVariants: Record<string, string[]> = {
+    'alpha': ['\\alpha', '\\Alpha'],
+    'beta': ['\\beta', '\\Beta'],
+    'gamma': ['\\gamma', '\\Gamma'],
+    'delta': ['\\delta', '\\Delta'],
+    'epsilon': ['\\epsilon', '\\varepsilon', '\\Epsilon'],
+    'theta': ['\\theta', '\\vartheta', '\\Theta'],
+    'pi': ['\\pi', '\\varpi', '\\Pi'],
+    'rho': ['\\rho', '\\varrho', '\\Rho'],
+    'sigma': ['\\sigma', '\\varsigma', '\\Sigma'],
+    'phi': ['\\phi', '\\varphi', '\\Phi'],
+    'psi': ['\\psi', '\\Psi'],
+    'omega': ['\\omega', '\\Omega'],
+  };
+
+  for (const [baseName, variants] of Object.entries(greekVariants)) {
+    if (('\\' + baseName).startsWith(s)) {
+      for (const variant of variants) {
+        if (!result.some(r => r.match === variant)) {
+          result.push({ match: variant, frequency: 5000 });
+        }
+      }
+    }
+  }
+
+  // Remove duplicates
+  const seen = new Set<string>();
+  const uniqueResult = result.filter(item => {
+    if (seen.has(item.match)) return false;
+    seen.add(item.match);
+    return true;
+  });
+
   const greekLetters = [
     '\\alpha', '\\beta', '\\gamma', '\\delta', '\\epsilon', '\\zeta', '\\eta', '\\theta', '\\iota', '\\kappa', '\\lambda', '\\mu', '\\nu', '\\xi', '\\omicron', '\\pi', '\\rho', '\\sigma', '\\tau', '\\upsilon', '\\phi', '\\chi', '\\psi', '\\omega',
     '\\Gamma', '\\Delta', '\\Theta', '\\Lambda', '\\Xi', '\\Pi', '\\Sigma', '\\Upsilon', '\\Phi', '\\Psi', '\\Omega',
     '\\varepsilon', '\\vartheta', '\\varpi', '\\varrho', '\\varsigma', '\\varphi'
   ];
 
-  result.sort((a, b) => {
+  uniqueResult.sort((a, b) => {
     const aIsGreek = greekLetters.includes(a.match);
     const bIsGreek = greekLetters.includes(b.match);
 
@@ -606,7 +675,7 @@ export function suggest(mf: _Mathfield, s: string): string[] {
     return (b.frequency ?? 0) - (a.frequency ?? 0);
   });
 
-  return result.map((x) => x.match);
+  return uniqueResult.map((x) => x.match);
 }
 
 /**

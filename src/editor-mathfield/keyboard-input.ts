@@ -16,6 +16,7 @@ import { moveAfterParent } from '../editor-model/commands-move';
 import { range } from '../editor-model/selection-utils';
 
 import { removeSuggestion, updateAutocomplete } from './autocomplete';
+import { isSuggestionPopoverVisible } from '../editor/suggestion-popover';
 import { requestUpdate } from './render';
 import type { _Mathfield } from './mathfield-private';
 import { removeIsolatedSpace, smartMode } from './smartmode';
@@ -198,7 +199,15 @@ export function onKeystroke(
     }
 
     // 5.4 Handle the return/enter key
+    // If the suggestion popover is visible, let it handle the Enter key
+    // (it will be handled by the popover's keyboard handler with capture: true)
     if (!selector && (keystroke === '[Enter]' || keystroke === '[Return]')) {
+      // If popover is visible, don't handle Enter here - let the popover handle it
+      if (isSuggestionPopoverVisible()) {
+        // The popover's keyboard handler will intercept this
+        return false;
+      }
+
       let success = true;
       if (model.contentWillChange({ inputType: 'insertLineBreak' })) {
         // No matching keybinding: trigger a commit
@@ -603,17 +612,17 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
     | undefined
     | SelectorPrivate
     | [SelectorPrivate, ...unknown[]] = (
-    {
-      '^': 'moveToSuperscript',
-      '_': 'moveToSubscript',
-      ' ': mathfield.options.mathModeSpace
-        ? (['insert', mathfield.options.mathModeSpace] as [
+      {
+        '^': 'moveToSuperscript',
+        '_': 'moveToSubscript',
+        ' ': mathfield.options.mathModeSpace
+          ? (['insert', mathfield.options.mathModeSpace] as [
             SelectorPrivate,
             ...unknown[],
           ])
-        : 'moveAfterParent',
-    } as const
-  )[c];
+          : 'moveAfterParent',
+      } as const
+    )[c];
 
   if (selector) {
     mathfield.executeCommand(selector);
@@ -674,6 +683,11 @@ function insertMathModeChar(mathfield: _Mathfield, c: string): void {
     return;
 
   mathfield.snapshot(`insert-${model.at(model.position).type}`);
+
+  // Update autocomplete for alphabetical characters
+  if (/^[a-zA-Z]$/.test(c)) {
+    updateAutocomplete(mathfield);
+  }
 }
 
 export function getSelectionStyle(model: _Model): Readonly<Style> {

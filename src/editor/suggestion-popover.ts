@@ -22,6 +22,9 @@ import {
   releaseSharedElement,
 } from '../common/shared-element';
 
+// Store the current suggestions to avoid recreating the popover unnecessarily
+let gCurrentSuggestions: string[] = [];
+
 function latexToMarkup(mf: _Mathfield, latex: string): string {
   const context = new Context({ from: mf.context });
 
@@ -50,7 +53,54 @@ export function showSuggestionPopover(
     return;
   }
 
-  // 1. Categorize suggestions
+  // Check if popover is already visible with the same suggestions
+  // If so, just update the current selection instead of recreating everything
+  const panel = document.getElementById('mathlive-suggestion-popover');
+  const isVisible = panel?.classList.contains('is-visible');
+  const suggestionsChanged =
+    gCurrentSuggestions.length !== suggestions.length ||
+    gCurrentSuggestions.some((s, i) => s !== suggestions[i]);
+
+  if (isVisible && !suggestionsChanged) {
+    // Just update the current selection - no need to recreate
+    updateCurrentSelection(panel!, mf.suggestionIndex);
+    panel!
+      .querySelector('.ML__popover__current')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    return;
+  }
+
+  // Store current suggestions
+  gCurrentSuggestions = [...suggestions];
+
+  // 1. Filter out styling commands
+  const excludedStylingCommands = [
+    // Text formatting
+    '\\text', '\\textbf', '\\textit', '\\textrm', '\\textsf', '\\texttt',
+    '\\textmd', '\\textup', '\\textnormal', '\\textsl', '\\textsc',
+    // Math formatting
+    '\\mathbf', '\\mathit', '\\mathrm', '\\mathsf', '\\mathtt',
+    '\\mathbb', '\\mathcal', '\\mathscr', '\\mathfrak', '\\mathnormal', '\\mathbfit',
+    '\\Bbb', '\\frak',
+    // Font families and styles
+    '\\bf', '\\it', '\\rm', '\\sf', '\\tt',
+    '\\rmfamily', '\\sffamily', '\\ttfamily',
+    '\\bfseries', '\\mdseries', '\\upshape', '\\slshape', '\\scshape',
+    // Bold symbols
+    '\\boldsymbol', '\\bm', '\\bold',
+    // Size commands
+    '\\tiny', '\\scriptsize', '\\footnotesize', '\\small', '\\normalsize',
+    '\\large', '\\Large', '\\LARGE', '\\huge', '\\Huge',
+    // Style commands
+    '\\displaystyle', '\\textstyle', '\\scriptstyle', '\\scriptscriptstyle',
+    // Color and boxes
+    '\\color', '\\textcolor', '\\colorbox', '\\fcolorbox', '\\boxed',
+    '\\em', '\\emph',
+    // Advanced TeX commands
+    '\\the',
+  ];
+
+  // 2. Categorize suggestions
   const categories = {
     functions: [] as { command: string; markup: string; keybinding?: string }[],
     constants: [] as { command: string; markup: string; keybinding?: string }[],
@@ -59,6 +109,12 @@ export function showSuggestionPopover(
 
   for (const suggestion of suggestions) {
     const command = suggestion;
+
+    // Skip styling commands
+    if (excludedStylingCommands.some(excluded => command.startsWith(excluded))) {
+      continue;
+    }
+
     const commandMarkup = latexToMarkup(mf, suggestion);
     const keybinding = getKeybindingsForCommand(mf.keybindings, command).join(
       '<br>'
@@ -152,10 +208,10 @@ export function showSuggestionPopover(
   // Fallback if everything ended up in symbols but we want a list for the first few?
   // For now, let's stick to the categorization.
 
-  const panel = createSuggestionPopover(mf, `<div class="ML__popover__container">${sections.join('')}</div>`);
+  const newPanel = createSuggestionPopover(mf, `<div class="ML__popover__container">${sections.join('')}</div>`);
 
   if (isSuggestionPopoverVisible()) {
-    panel
+    newPanel
       .querySelector('.ML__popover__current')
       ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
@@ -164,10 +220,10 @@ export function showSuggestionPopover(
   }
 
   setTimeout(() => {
-    if (panel && !isSuggestionPopoverVisible()) {
-      panel.classList.add('is-visible');
+    if (newPanel && !isSuggestionPopoverVisible()) {
+      newPanel.classList.add('is-visible');
       updateSuggestionPopoverPosition(mf);
-      panel
+      newPanel
         .querySelector('.ML__popover__current')
         ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 
@@ -175,6 +231,23 @@ export function showSuggestionPopover(
       setupPopoverKeybindings(mf);
     }
   }, 32);
+}
+
+/**
+ * Update the current selection in the popover without recreating it
+ */
+function updateCurrentSelection(panel: HTMLElement, newIndex: number): void {
+  const items = panel.querySelectorAll('li');
+
+  // Remove current class from all items
+  items.forEach((item) => {
+    item.classList.remove('ML__popover__current');
+  });
+
+  // Add current class to the new selected item
+  if (newIndex >= 0 && newIndex < items.length) {
+    items[newIndex].classList.add('ML__popover__current');
+  }
 }
 
 let gKeydownHandler: ((evt: KeyboardEvent) => void) | null = null;
@@ -185,6 +258,30 @@ function setupPopoverKeybindings(mf: _Mathfield) {
   gKeydownHandler = (evt: KeyboardEvent) => {
     if (!isSuggestionPopoverVisible()) return;
 
+    // Handle Enter/Return key to accept current suggestion
+    if (evt.key === 'Enter' || evt.key === 'Return') {
+      const panel = document.getElementById('mathlive-suggestion-popover');
+      if (!panel) return;
+
+      const items = panel.querySelectorAll('li');
+      if (mf.suggestionIndex < items.length) {
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        const el = items[mf.suggestionIndex];
+        complete(mf, 'reject');
+        ModeEditor.insert(mf.model, el.dataset.command!, {
+          selectionMode: 'placeholder',
+          format: 'latex',
+          mode: 'math',
+        });
+        mf.dirty = true;
+        mf.focus();
+      }
+      return;
+    }
+
+    // Handle Cmd/Ctrl + number shortcuts
     if ((evt.metaKey || evt.ctrlKey) && evt.key >= '1' && evt.key <= '9') {
       const index = parseInt(evt.key) - 1;
       const panel = document.getElementById('mathlive-suggestion-popover');
@@ -290,6 +387,7 @@ export function updateSuggestionPopoverPosition(
 
 export function hideSuggestionPopover(mf: _Mathfield): void {
   mf.suggestionIndex = 0;
+  gCurrentSuggestions = []; // Clear stored suggestions
   const panel = document.getElementById('mathlive-suggestion-popover');
   if (panel) {
     releaseSharedElement('mathlive-suggestion-popover');

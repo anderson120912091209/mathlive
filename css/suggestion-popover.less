@@ -5,40 +5,73 @@
 @monospace: 'IBM Plex Mono', 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
   'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
 
-/* Minimalist Design Tokens */
-@suggestion-bg: #111111;
-@suggestion-border: #333333;
-@suggestion-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-@suggestion-hover-bg: #1a1a1a;
-@suggestion-current-bg: #222222;
-@suggestion-current-border: #444444;
-@suggestion-text: #ffffff;
-@suggestion-text-secondary: #888888;
-@suggestion-accent: #ffffff;
-@suggestion-border-radius: 12px;
+/* Refined Subtle Design Tokens - 低調 (Low-key, Understated) with 3D Depth */
+@suggestion-bg: #0f0f0f;
+@suggestion-border: #1a1a1a;
+@suggestion-shadow: 
+  0 8px 32px rgba(0, 0, 0, 0.4),
+  0 2px 8px rgba(0, 0, 0, 0.3),
+  0 0 0 0.5px rgba(255, 255, 255, 0.08),
+  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+@suggestion-hover-bg: #181818;
+@suggestion-hover-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.03);
+@suggestion-current-bg: #1f1f1f;
+@suggestion-current-border: #2a2a2a;
+@suggestion-current-shadow: 
+  inset 0 1px 3px rgba(0, 0, 0, 0.3),
+  inset 0 -1px 1px rgba(255, 255, 255, 0.02),
+  0 1px 0 rgba(255, 255, 255, 0.04);
+@suggestion-text: #e8e8e8;
+@suggestion-text-secondary: #6b6b6b;
+@suggestion-text-tertiary: #4a4a4a;
+@suggestion-accent: #d4d4d4;
+@suggestion-border-radius: 10px;
 @suggestion-item-radius: 6px;
+@suggestion-divider: #1f1f1f;
 
 #mathlive-suggestion-popover {
   --_suggestion-zindex: var(--suggestion-zindex, 100);
   background: @suggestion-bg;
-  border: 1px solid @suggestion-border;
+  border: 0.5px solid @suggestion-border;
   color: @suggestion-text;
   text-align: left;
   border-radius: @suggestion-border-radius;
   position: fixed;
   z-index: var(--_suggestion-zindex);
-  /* Removed backdrop-filter for a cleaner, solid look */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 
   display: none;
   flex-direction: column;
-  min-width: 320px;
-  max-width: 400px;
+  min-width: 300px;
+  max-width: 360px;
   overflow: hidden;
   font-family: @system;
+  font-size: 12px;
+  line-height: 1.4;
 
+  /* 3D Depth Effect - Layered shadows */
   box-shadow: @suggestion-shadow;
-  transition: opacity 0.1s ease, transform 0.1s ease;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.15s ease;
   padding: 6px;
+  
+  /* Subtle inner highlight for depth */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, 
+      transparent 0%, 
+      rgba(255, 255, 255, 0.08) 50%, 
+      transparent 100%);
+    border-radius: @suggestion-border-radius @suggestion-border-radius 0 0;
+    pointer-events: none;
+  }
 }
 
 #mathlive-suggestion-popover.is-visible {
@@ -52,12 +85,14 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 480px;
+  max-height: 400px;
   overflow-y: auto;
-  padding-right: 2px;
+  overflow-x: hidden;
+  padding-right: 3px;
+  margin-right: -3px;
 
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -65,23 +100,48 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 2px;
+    background: @suggestion-divider;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    
+    &:hover {
+      background: lighten(@suggestion-divider, 8%);
+    }
   }
 }
 
 /* Section Titles */
 .ML__popover__section-title {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: @suggestion-text-secondary;
+  font-size: 10px;
+  font-weight: 500;
+  color: @suggestion-text-tertiary;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 8px 8px 4px;
-  margin-top: 4px;
+  letter-spacing: 0.06em;
+  padding: 6px 10px 4px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  position: relative;
 
   &:first-child {
     margin-top: 0;
+    padding-top: 6px;
+  }
+
+  &:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 0.5px;
+    /* 3D divider with subtle shadow */
+    background: linear-gradient(to right,
+      transparent 0%,
+      @suggestion-divider 20%,
+      @suggestion-divider 80%,
+      transparent 100%);
+    box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -92,36 +152,41 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 /* Grid Styles */
 #mathlive-suggestion-popover ul.ML__popover__grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  /* More compact grid */
-  gap: 2px;
+  gap: 3px;
+  padding: 2px;
 }
 
 /* Common Item Styles */
 #mathlive-suggestion-popover li {
   cursor: pointer;
   border-radius: @suggestion-item-radius;
-  transition: background 0.05s ease;
+  transition: background 0.15s ease, color 0.15s ease;
   position: relative;
-  border: 1px solid transparent;
-  color: @suggestion-text-secondary;
+  border: none;
+  color: @suggestion-text;
+  outline: none;
+  background: transparent;
 
   &:hover {
     background: @suggestion-hover-bg;
     color: @suggestion-text;
   }
 
+  &:focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.1);
+    outline-offset: -1px;
+  }
+
   &.ML__popover__current {
     background: @suggestion-current-bg;
-    border-color: @suggestion-current-border;
     color: @suggestion-text;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -131,38 +196,42 @@
   align-items: center;
   padding: 6px 10px;
   gap: 10px;
-  height: 40px;
+  min-height: 32px;
 
   .ML__popover__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    font-size: 1rem;
+    width: 18px;
+    height: 18px;
+    font-size: 13px;
     color: inherit;
-    opacity: 0.8;
+    flex-shrink: 0;
   }
 
   .ML__popover__label-group {
     display: flex;
     flex-direction: row;
-    /* Horizontal layout for list items */
     align-items: baseline;
     flex: 1;
-    gap: 8px;
+    gap: 10px;
+    min-width: 0;
   }
 
   .ML__popover__latex {
     font-family: @monospace;
-    font-size: 0.85rem;
+    font-size: 11px;
     color: inherit;
+    letter-spacing: -0.01em;
+    opacity: 1;
   }
 
   .ML__popover__type {
-    font-size: 0.7rem;
+    font-size: 10px;
     color: @suggestion-text-secondary;
-    opacity: 0.6;
+    font-weight: 400;
+    margin-left: auto;
+    flex-shrink: 0;
   }
 }
 
@@ -170,40 +239,103 @@
 .ML__popover__item--grid {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 48px;
+  justify-content: flex-start;
+  min-height: 38px;
   position: relative;
   background: rgba(255, 255, 255, 0.02);
+  border-radius: 5px;
+  transition: background 0.15s ease;
+  padding-left: 8px;
+  padding-right: 28px; /* Space for shortcut button */
+  border: 0.5px solid rgba(255, 255, 255, 0.03);
 
   .ML__popover__command {
-    font-size: 1.2rem;
+    font-size: 16px;
     color: inherit;
+    transition: opacity 0.15s ease;
+    /* Position symbol to the left, avoiding shortcut button area */
+    margin-right: auto;
+  }
+
+  &:hover {
+    background: @suggestion-hover-bg;
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &.ML__popover__current {
+    background: @suggestion-current-bg;
+    border-color: rgba(255, 255, 255, 0.06);
   }
 }
 
-/* Shortcuts */
+/* Shortcuts - Subtle 3D Keycap Effect */
 .ML__popover__shortcut {
-  font-size: 0.65rem;
-  color: @suggestion-text-secondary;
-  border: 1px solid #333;
-  padding: 1px 4px;
-  border-radius: 3px;
+  font-size: 9px;
+  color: @suggestion-text;
+  border: 0.5px solid @suggestion-divider;
+  padding: 3px 4px;
+  border-radius: 4px;
   font-family: @system;
-  opacity: 0.5;
-  min-width: 16px;
+  min-width: 20px;
   text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.12s ease;
+  position: relative;
+  
+  /* Subtle 3D raised keycap effect */
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.ML__popover__item--list .ML__popover__shortcut {
+  margin-left: auto;
+  flex-shrink: 0;
+  /* Ensure it doesn't clash with symbols - add spacing */
+  margin-right: 2px;
 }
 
 .ML__popover__item--grid .ML__popover__shortcut {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 0.55rem;
-  border: none;
+  top: 3px;
+  right: 3px;
+  font-size: 8px;
+  padding: 2px 5px;
+  border: 0.5px solid @suggestion-divider;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  border-radius: 3px;
+  z-index: 1;
+  
+  /* Subtle 3D badge effect - same as list shortcuts */
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  
+  font-weight: 600;
+  color: @suggestion-text;
+  
+  /* Match hover/selected state with list shortcuts */
+  .ML__popover__item--grid:hover &,
+  .ML__popover__item--grid.ML__popover__current & {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: lighten(@suggestion-divider, 15%);
+    box-shadow: 
+      inset 0 1px 2px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
 }
 
+.ML__popover__item--list:hover .ML__popover__shortcut,
 .ML__popover__current .ML__popover__shortcut {
   color: @suggestion-text;
-  border-color: #555;
-  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: lighten(@suggestion-divider, 15%);
+  
+  /* Subtle pressed keycap effect */
+  box-shadow: 
+    inset 0 1px 2px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }

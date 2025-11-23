@@ -74,9 +74,10 @@ export function updateAutocomplete(
     command = commandAtoms.map((x) => x.value).join('');
   } else {
     // No backslash found - check if we're in a plain alphabetic sequence
-    // Start from current position and collect letters backward
+    // Start from the atom before current position (the one we just typed) or at current position
     const plainAtoms: LatexAtom[] = [];
-    let currentAtom = model.at(model.position);
+    // First check the atom before position (the one we just typed), then check at position
+    let currentAtom = model.at(model.position - 1) ?? model.at(model.position);
 
     // Collect leftward
     while (currentAtom && currentAtom instanceof LatexAtom && /^[a-zA-Z]$/.test(currentAtom.value)) {
@@ -84,8 +85,8 @@ export function updateAutocomplete(
       currentAtom = currentAtom.leftSibling;
     }
 
-    // Only trigger if we have 2+ characters and we're NOT in a latex group already
-    if (plainAtoms.length >= 2 && !(currentAtom && currentAtom instanceof LatexAtom && currentAtom.value === '\\')) {
+    // Only trigger if we have 1+ characters and we're NOT in a latex group already
+    if (plainAtoms.length >= 1 && !(currentAtom && currentAtom instanceof LatexAtom && currentAtom.value === '\\')) {
       const plainText = plainAtoms.map((x) => x.value).join('');
       command = '\\' + plainText; // Add backslash for suggestion lookup
       commandAtoms.push(...plainAtoms);
@@ -109,6 +110,9 @@ export function updateAutocomplete(
 
   const suggestion = suggestions[mathfield.suggestionIndex];
 
+  // Inline autocomplete disabled - only show popover menu for clarity
+  // This prevents confusion between inline suggestion and popover selection
+  /*
   if (suggestion !== command) {
     const lastAtom = commandAtoms[commandAtoms.length - 1];
     lastAtom.parent!.addChildrenAfter(
@@ -119,6 +123,7 @@ export function updateAutocomplete(
     );
     render(mathfield, { interactive: true });
   }
+  */
 
   showSuggestionPopover(mathfield, suggestions);
 }

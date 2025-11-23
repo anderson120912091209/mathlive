@@ -51,12 +51,12 @@ defineFunction('mathtip', '{:auto}{:math}', {
     options.skipStyles
       ? atom.bodyToLatex(options)
       : `\\mathtip{${atom.bodyToLatex(options)}}{${Atom.serialize(
-          [atom.tooltip],
-          {
-            ...options,
-            defaultMode: 'math',
-          }
-        )}}`,
+        [atom.tooltip],
+        {
+          ...options,
+          defaultMode: 'math',
+        }
+      )}}`,
 });
 
 defineFunction('texttip', '{:auto}{:text}', {
@@ -73,12 +73,12 @@ defineFunction('texttip', '{:auto}{:text}', {
     options.skipStyles
       ? atom.bodyToLatex(options)
       : `\\texttip{${atom.bodyToLatex(options)}}{${Atom.serialize(
-          [atom.tooltip],
-          {
-            ...options,
-            defaultMode: 'text',
-          }
-        )}}`,
+        [atom.tooltip],
+        {
+          ...options,
+          defaultMode: 'text',
+        }
+      )}}`,
 });
 
 defineFunction('error', '{:math}', {
@@ -165,11 +165,11 @@ defineFunction(
       options.skipStyles
         ? atom.bodyToLatex({ ...options, defaultMode: 'text' })
         : latexCommand(
-            atom.command,
-            serializeLatexValue(atom.framecolor) ?? '',
-            serializeLatexValue(atom.backgroundcolor) ?? '',
-            atom.bodyToLatex({ ...options, defaultMode: 'text' })
-          ),
+          atom.command,
+          serializeLatexValue(atom.framecolor) ?? '',
+          serializeLatexValue(atom.backgroundcolor) ?? '',
+          atom.bodyToLatex({ ...options, defaultMode: 'text' })
+        ),
   }
 );
 
@@ -294,27 +294,37 @@ defineFunction(
 );
 
 // \fontseries only works in text mode
+// DISABLED: Uncommon low-level font command
+/*
 defineFunction('fontseries', '{:string}', {
   ifMode: 'text',
   applyStyle: (style, _name, args: [null | FontSeries]): PrivateStyle => {
     return { ...style, fontSeries: args[0] ?? 'auto' };
   },
 });
+*/
+
 // SHAPE: italic, small caps
+// DISABLED: Uncommon low-level font command
+/*
 defineFunction('fontshape', '{:string}', {
   ifMode: 'text',
   applyStyle: (style, _name, args: [null | FontShape]): PrivateStyle => {
     return { ...style, fontShape: args[0] ?? 'auto' };
   },
 });
+*/
 
 // FONT FAMILY: roman, sans-serif, monospace
+// DISABLED: Uncommon low-level font command
+/*
 defineFunction('fontfamily', '{:string}', {
   ifMode: 'text',
   applyStyle: (style, _name, args: [null | FontFamily]): PrivateStyle => {
     return { ...style, fontFamily: args[0] ?? 'roman' };
   },
 });
+*/
 
 // In LaTeX, the \fontseries, \fontshape, \fontfamily, \fontsize commands
 // do not take effect until \selectfont is encoded. In our implementation,
@@ -1054,8 +1064,7 @@ defineFunction('rule', '[raise:value]{width:value}{thickness:value}', {
   serialize: (
     atom: Atom<[LatexValue | null, LatexValue | null, LatexValue | null]>
   ) =>
-    `\\rule${
-      atom.args[0] ? `[${serializeLatexValue(atom.args![0])}]` : ''
+    `\\rule${atom.args[0] ? `[${serializeLatexValue(atom.args![0])}]` : ''
     }{${serializeLatexValue(atom.args![1])}}{${serializeLatexValue(
       atom.args![2]
     )}}`,

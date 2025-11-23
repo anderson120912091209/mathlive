@@ -1,8 +1,7 @@
 // The mu (mathematical unit) is defined by TeX as 1/18 em
 @mu: 1/18em;
 
-@system:
-  system-ui,
+@system: system-ui,
   -apple-system,
   BlinkMacSystemFont,
   'Segoe UI',
@@ -134,15 +133,19 @@
 .ML__sans {
   font-family: KaTeX_SansSerif;
 }
+
 .ML__series_ul {
   font-weight: 100;
 }
+
 .ML__series_el {
   font-weight: 100;
 }
+
 .ML__series_l {
   font-weight: 200;
 }
+
 .ML__series_sl {
   font-weight: 300;
 }
@@ -150,12 +153,15 @@
 .ML__series_sb {
   font-weight: 500;
 }
+
 .ML__bold {
   font-weight: 700;
 }
+
 .ML__series_eb {
   font-weight: 800;
 }
+
 .ML__series_ub {
   font-weight: 900;
 }
@@ -163,24 +169,31 @@
 .ML__series_uc {
   font-stretch: ultra-condensed;
 }
+
 .ML__series_ec {
   font-stretch: extra-condensed;
 }
+
 .ML__series_c {
   font-stretch: condensed;
 }
+
 .ML__series_sc {
   font-stretch: semi-condensed;
 }
+
 .ML__series_sx {
   font-stretch: semi-expanded;
 }
+
 .ML__series_x {
   font-stretch: expanded;
 }
+
 .ML__series_ex {
   font-stretch: extra-expanded;
 }
+
 .ML__series_ux {
   font-stretch: ultra-expanded;
 }
@@ -188,14 +201,17 @@
 .ML__it {
   font-style: italic;
 }
+
 .ML__shape_ol {
   -webkit-text-stroke: 1px black;
   text-stroke: 1px black;
   color: transparent;
 }
+
 .ML__shape_sc {
   font-variant: small-caps;
 }
+
 .ML__shape_sl {
   font-style: oblique;
 }
@@ -204,6 +220,7 @@
 .ML__emph {
   color: #bc2612;
 }
+
 /* Second level emphasis */
 .ML__emph .ML__emph {
   color: #0c7f99;
@@ -254,7 +271,8 @@
       Setting the background (and the min-height) seems to work for now.
       */
     background: currentColor;
-    box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
+    box-sizing: content-box;
+    /* Vuetify sets the box-sizing to inherit 
             causes the fraction line to not draw at all sizes (see #26) */
     /* On some versions of Firefox on Windows, the line fails to 
             draw at some zoom levels, but setting the transform triggers
@@ -323,21 +341,25 @@
 .ML__delim-size1 {
   font-family: KaTeX_Size1;
 }
+
 .ML__delim-size2 {
   font-family: KaTeX_Size2;
 }
+
 .ML__delim-size3 {
   font-family: KaTeX_Size3;
 }
+
 .ML__delim-size4 {
   font-family: KaTeX_Size4;
 }
 
 .ML__delim-mult {
-  .delim-size1 > span {
+  .delim-size1>span {
     font-family: KaTeX_Size1;
   }
-  .delim-size4 > span {
+
+  .delim-size4>span {
     font-family: KaTeX_Size4;
   }
 }
@@ -419,15 +441,16 @@
     vertical-align: bottom;
     position: relative;
 
-    > span {
+    >span {
       display: block;
       height: 0;
       position: relative;
 
-      > span {
+      >span {
         display: inline-block;
       }
-      > .ML__pstrut {
+
+      >.ML__pstrut {
         overflow: hidden;
         width: 0;
       }
@@ -452,6 +475,7 @@
     width: 2px;
     min-width: 2px;
   }
+
   .ML__msubsup {
     text-align: left;
   }
@@ -504,20 +528,20 @@
     position: relative;
     display: inline-block;
 
-    > .ML__inner {
+    >.ML__inner {
       position: absolute;
     }
 
-    > .ML__fix {
+    >.ML__fix {
       display: inline-block;
     }
   }
 
-  .ML__llap > .ML__inner {
+  .ML__llap>.ML__inner {
     right: 0;
   }
 
-  .ML__rlap > .ML__inner {
+  .ML__rlap>.ML__inner {
     left: 0;
   }
 
@@ -561,10 +585,12 @@
     width: 100%;
     left: 0;
     overflow: hidden;
+
     &:before,
     &:after {
       content: '';
     }
+
     svg {
       display: block;
       position: absolute;
@@ -591,6 +617,7 @@
     width: 50.2%;
     overflow: hidden;
   }
+
   .slice-2-of-2 {
     display: inline-flex;
     position: absolute;
@@ -598,6 +625,7 @@
     width: 50.2%;
     overflow: hidden;
   }
+
   .slice-1-of-3 {
     display: inline-flex;
     position: absolute;
@@ -605,6 +633,7 @@
     width: 25.1%;
     overflow: hidden;
   }
+
   .slice-2-of-3 {
     display: inline-flex;
     position: absolute;
@@ -612,6 +641,7 @@
     width: 50%;
     overflow: hidden;
   }
+
   .slice-3-of-3 {
     display: inline-flex;
     position: absolute;
@@ -619,6 +649,7 @@
     width: 25.1%;
     overflow: hidden;
   }
+
   .slice-1-of-1 {
     display: inline-flex;
     position: absolute;
@@ -641,6 +672,7 @@
     &.ML__small-op {
       font-family: KaTeX_Size1;
     }
+
     &.ML__large-op {
       font-family: KaTeX_Size2;
     }
@@ -687,19 +719,19 @@
       display: inline-block;
     }
 
-    .col-align-m > .ML__vlist-t {
+    .col-align-m>.ML__vlist-t {
       text-align: center;
     }
 
-    .col-align-c > .ML__vlist-t {
+    .col-align-c>.ML__vlist-t {
       text-align: center;
     }
 
-    .col-align-l > .ML__vlist-t {
+    .col-align-l>.ML__vlist-t {
       text-align: left;
     }
 
-    .col-align-r > .ML__vlist-t {
+    .col-align-r>.ML__vlist-t {
       text-align: right;
     }
   }
@@ -713,11 +745,9 @@
 // Wavy pattern
 .ML__error {
   display: inline-block;
-  background-image: radial-gradient(
-    ellipse at center,
-    hsl(341, 100%, 40%),
-    rgba(0, 0, 0, 0) 70%
-  );
+  background-image: radial-gradient(ellipse at center,
+      hsl(341, 100%, 40%),
+      rgba(0, 0, 0, 0) 70%);
   background-color: hsla(341, 100%, 40%, 10%);
 
   background-repeat: repeat-x;
@@ -726,7 +756,7 @@
   background-position: 0 100%;
 }
 
-.ML__error > .ML__error {
+.ML__error>.ML__error {
   background: transparent;
   padding: 0;
 }
@@ -774,10 +804,12 @@
     .ML__text {
       white-space: normal; // Make text wrap
     }
+
     .ML__base {
       display: contents;
     }
   }
+
   &:hover .ML__tooltip-content {
     visibility: visible; // Visible triggers the animation...
     opacity: 1; // ... but we start fully transparent to
