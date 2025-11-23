@@ -5,138 +5,205 @@
 @monospace: 'IBM Plex Mono', 'Source Code Pro', Consolas, 'Roboto Mono', Menlo,
   'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', Monaco, Courier, monospace;
 
-/* The element that display info while in latex mode */
+/* Minimalist Design Tokens */
+@suggestion-bg: #111111;
+@suggestion-border: #333333;
+@suggestion-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+@suggestion-hover-bg: #1a1a1a;
+@suggestion-current-bg: #222222;
+@suggestion-current-border: #444444;
+@suggestion-text: #ffffff;
+@suggestion-text-secondary: #888888;
+@suggestion-accent: #ffffff;
+@suggestion-border-radius: 12px;
+@suggestion-item-radius: 6px;
+
 #mathlive-suggestion-popover {
   --_suggestion-zindex: var(--suggestion-zindex, 100);
-  background-color: rgba(97, 97, 97);
-  color: #fff;
-  text-align: center;
-  border-radius: 8px;
+  background: @suggestion-bg;
+  border: 1px solid @suggestion-border;
+  color: @suggestion-text;
+  text-align: left;
+  border-radius: @suggestion-border-radius;
   position: fixed;
   z-index: var(--_suggestion-zindex);
+  /* Removed backdrop-filter for a cleaner, solid look */
 
   display: none;
   flex-direction: column;
-  justify-content: center;
+  min-width: 320px;
+  max-width: 400px;
+  overflow: hidden;
+  font-family: @system;
 
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
-}
-
-#mathlive-suggestion-popover.top-tip::after  {
-  content: '';
-  position: absolute;
-  top: -15px;
-  left: calc(50% - 15px);
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 15px solid rgba(97, 97, 97);
-
-  font-size: 1rem;
-}
-
-#mathlive-suggestion-popover.bottom-tip::after  {
-  content: '';
-  position: absolute;
-  bottom: -15px;
-  left: calc(50% - 15px);
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-top: 15px solid rgba(97, 97, 97);
-
-  font-size: 1rem;
-}
-
-
-
-#mathlive-suggestion-popover.is-animated {
-  transition: all 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
-  animation: ML__fade-in cubic-bezier(0, 0, 0.2, 1) 0.15s;
+  box-shadow: @suggestion-shadow;
+  transition: opacity 0.1s ease, transform 0.1s ease;
+  padding: 6px;
 }
 
 #mathlive-suggestion-popover.is-visible {
   display: flex;
-}
-@keyframes ML__fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* The wrapper class for the entire content of the popover panel */
-
-#mathlive-suggestion-popover ul {
+/* Container for sections */
+.ML__popover__container {
   display: flex;
-  flex-flow: column;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 2px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 2px;
+  }
+}
+
+/* Section Titles */
+.ML__popover__section-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: @suggestion-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 8px 4px;
+  margin-top: 4px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+/* List Styles */
+#mathlive-suggestion-popover ul {
   list-style: none;
   margin: 0;
   padding: 0;
-  align-items: flex-start;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-#mathlive-suggestion-popover li {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: 8px;
-  padding: 8px;
-  width: calc(100% - 16px - 16px); // minus 2*margin minus 2 * padding
-  column-gap: 1em;
+  flex-direction: column;
+  gap: 1px;
+}
 
-  border-radius: 8px;
+/* Grid Styles */
+#mathlive-suggestion-popover ul.ML__popover__grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  /* More compact grid */
+  gap: 2px;
+}
+
+/* Common Item Styles */
+#mathlive-suggestion-popover li {
   cursor: pointer;
+  border-radius: @suggestion-item-radius;
+  transition: background 0.05s ease;
+  position: relative;
+  border: 1px solid transparent;
+  color: @suggestion-text-secondary;
 
-  a {
-    color: #5ea6fd;
-    padding-top: 0.3em;
-    margin-top: 0.4em;
-    display: block;
-    &:hover {
-      color: #5ea6fd;
-      text-decoration: underline;
-    }
+  &:hover {
+    background: @suggestion-hover-bg;
+    color: @suggestion-text;
   }
-  /* Since the content can be clicked on, provide feedback on hover */
-  &:hover,
-  &.is-pressed,
-  &.is-active {
-    background: rgba(255, 255, 255, 0.1);
+
+  &.ML__popover__current {
+    background: @suggestion-current-bg;
+    border-color: @suggestion-current-border;
+    color: @suggestion-text;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 }
 
-/* The command inside a popover (inside a #mathlive-suggestion-popover) */
-.ML__popover__command {
-  font-size: 1.6rem;
-  font-family: KaTeX_Main;
+/* List Item Specifics */
+.ML__popover__item--list {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  gap: 10px;
+  height: 40px;
+
+  .ML__popover__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
+    color: inherit;
+    opacity: 0.8;
+  }
+
+  .ML__popover__label-group {
+    display: flex;
+    flex-direction: row;
+    /* Horizontal layout for list items */
+    align-items: baseline;
+    flex: 1;
+    gap: 8px;
+  }
+
+  .ML__popover__latex {
+    font-family: @monospace;
+    font-size: 0.85rem;
+    color: inherit;
+  }
+
+  .ML__popover__type {
+    font-size: 0.7rem;
+    color: @suggestion-text-secondary;
+    opacity: 0.6;
+  }
 }
 
-.ML__popover__current {
-  background : #5ea6fd;
-  color: #fff;
+/* Grid Item Specifics */
+.ML__popover__item--grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+
+  .ML__popover__command {
+    font-size: 1.2rem;
+    color: inherit;
+  }
 }
 
-.ML__popover__latex {
-  font-family: @monospace;
-  align-self: center;
-}
-
-/* The keyboard shortcuts for a symbol as displayed in the popover */
-.ML__popover__keybinding {
+/* Shortcuts */
+.ML__popover__shortcut {
+  font-size: 0.65rem;
+  color: @suggestion-text-secondary;
+  border: 1px solid #333;
+  padding: 1px 4px;
+  border-radius: 3px;
   font-family: @system;
-  font-size: 0.8em;
-  opacity: 0.7;
+  opacity: 0.5;
+  min-width: 16px;
+  text-align: center;
 }
 
-/* Style for the character that joins the modifiers of a keyboard shortcut 
-(usually a "+" sign)*/
-.ML__shortcut-join {
-  opacity: 0.5;
+.ML__popover__item--grid .ML__popover__shortcut {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.55rem;
+  border: none;
+}
+
+.ML__popover__current .ML__popover__shortcut {
+  color: @suggestion-text;
+  border-color: #555;
+  opacity: 1;
 }
