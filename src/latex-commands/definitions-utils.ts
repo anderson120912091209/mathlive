@@ -584,7 +584,19 @@ export function suggest(mf: _Mathfield, s: string): string[] {
   for (const p of Object.keys(mf.options.macros))
     if (p.startsWith(command)) result.push({ match: '\\' + p, frequency: 0 });
 
+  const greekLetters = [
+    '\\alpha', '\\beta', '\\gamma', '\\delta', '\\epsilon', '\\zeta', '\\eta', '\\theta', '\\iota', '\\kappa', '\\lambda', '\\mu', '\\nu', '\\xi', '\\omicron', '\\pi', '\\rho', '\\sigma', '\\tau', '\\upsilon', '\\phi', '\\chi', '\\psi', '\\omega',
+    '\\Gamma', '\\Delta', '\\Theta', '\\Lambda', '\\Xi', '\\Pi', '\\Sigma', '\\Upsilon', '\\Phi', '\\Psi', '\\Omega',
+    '\\varepsilon', '\\vartheta', '\\varpi', '\\varrho', '\\varsigma', '\\varphi'
+  ];
+
   result.sort((a, b) => {
+    const aIsGreek = greekLetters.includes(a.match);
+    const bIsGreek = greekLetters.includes(b.match);
+
+    if (aIsGreek && !bIsGreek) return -1;
+    if (!aIsGreek && bIsGreek) return 1;
+
     if (a.frequency === b.frequency) {
       if (a.match.length === b.match.length) return a.match < b.match ? -1 : +1;
 

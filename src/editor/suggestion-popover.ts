@@ -66,10 +66,16 @@ export function showSuggestionPopover(
     const item = { command, markup: commandMarkup, keybinding };
 
     // Simple heuristic for categorization (can be refined)
+    const greekLetters = [
+      '\\alpha', '\\beta', '\\gamma', '\\delta', '\\epsilon', '\\zeta', '\\eta', '\\theta', '\\iota', '\\kappa', '\\lambda', '\\mu', '\\nu', '\\xi', '\\omicron', '\\pi', '\\rho', '\\sigma', '\\tau', '\\upsilon', '\\phi', '\\chi', '\\psi', '\\omega',
+      '\\Gamma', '\\Delta', '\\Theta', '\\Lambda', '\\Xi', '\\Pi', '\\Sigma', '\\Upsilon', '\\Phi', '\\Psi', '\\Omega',
+      '\\varepsilon', '\\vartheta', '\\varpi', '\\varrho', '\\varsigma', '\\varphi'
+    ];
+
     if (command.startsWith('\\mathbb') || command.startsWith('\\mathcal') || command.length === 2) {
       // Single letter commands or font commands often act like symbols/constants
       categories.symbols.push(item);
-    } else if (['\\pi', '\\infty', '\\alpha', '\\beta', '\\gamma'].some(c => command.startsWith(c))) {
+    } else if (greekLetters.some(g => command === g || command.startsWith(g + ' '))) {
       categories.symbols.push(item);
     } else if (command.length > 3 && !command.includes('{')) {
       categories.functions.push(item);
@@ -113,7 +119,17 @@ export function showSuggestionPopover(
 
   let globalIndex = 0;
 
-  // Section 1: Functions/Variables (List view)
+  // Section 1: Symbols (Grid view) - Priority
+  if (categories.symbols.length > 0) {
+    sections.push(`<div class="ML__popover__section-title">Symbols</div>`);
+    sections.push('<ul class="ML__popover__grid">');
+    for (const item of categories.symbols) {
+      sections.push(createItem(item, globalIndex++, true));
+    }
+    sections.push('</ul>');
+  }
+
+  // Section 2: Functions/Variables (List view)
   if (categories.functions.length > 0) {
     sections.push(`<div class="ML__popover__section-title">Variable or Function</div>`);
     sections.push('<ul>');
@@ -123,22 +139,12 @@ export function showSuggestionPopover(
     sections.push('</ul>');
   }
 
-  // Section 2: Constants (List view)
+  // Section 3: Constants (List view)
   if (categories.constants.length > 0) {
     sections.push(`<div class="ML__popover__section-title">Constant</div>`);
     sections.push('<ul>');
     for (const item of categories.constants) {
       sections.push(createItem(item, globalIndex++, false));
-    }
-    sections.push('</ul>');
-  }
-
-  // Section 3: Symbols (Grid view)
-  if (categories.symbols.length > 0) {
-    sections.push(`<div class="ML__popover__section-title">Symbols</div>`);
-    sections.push('<ul class="ML__popover__grid">');
-    for (const item of categories.symbols) {
-      sections.push(createItem(item, globalIndex++, true));
     }
     sections.push('</ul>');
   }

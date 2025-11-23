@@ -51,12 +51,16 @@ export function updateAutocomplete(
   const commandAtoms: LatexAtom[] = [];
   let atom = model.at(model.position);
 
+  // Collect all consecutive letter atoms to the left
   while (atom && atom instanceof LatexAtom && /^[a-zA-Z\*]$/.test(atom.value))
     atom = atom.leftSibling;
 
+  let command = '';
+  let hasBackslash = false;
+
   if (atom && atom instanceof LatexAtom && atom.value === '\\') {
-    // We've found the start of a command.
-    // Go forward and collect the potential atoms of the command
+    // We've found the start of a backslash command.
+    hasBackslash = true;
     commandAtoms.push(atom);
     atom = atom.rightSibling;
     while (
@@ -67,14 +71,32 @@ export function updateAutocomplete(
       commandAtoms.push(atom);
       atom = atom.rightSibling;
     }
+    command = commandAtoms.map((x) => x.value).join('');
+  } else {
+    // No backslash found - check if we're in a plain alphabetic sequence
+    // Start from current position and collect letters backward
+    const plainAtoms: LatexAtom[] = [];
+    let currentAtom = model.at(model.position);
+
+    // Collect leftward
+    while (currentAtom && currentAtom instanceof LatexAtom && /^[a-zA-Z]$/.test(currentAtom.value)) {
+      plainAtoms.unshift(currentAtom);
+      currentAtom = currentAtom.leftSibling;
+    }
+
+    // Only trigger if we have 2+ characters and we're NOT in a latex group already
+    if (plainAtoms.length >= 2 && !(currentAtom && currentAtom instanceof LatexAtom && currentAtom.value === '\\')) {
+      const plainText = plainAtoms.map((x) => x.value).join('');
+      command = '\\' + plainText; // Add backslash for suggestion lookup
+      commandAtoms.push(...plainAtoms);
+    }
   }
 
-  const command = commandAtoms.map((x) => x.value).join('');
   const suggestions = suggest(mathfield, command);
 
   if (suggestions.length === 0) {
     // This looks like a command name, but not a known one
-    if (/^\\[a-zA-Z\*]+$/.test(command))
+    if (hasBackslash && /^\\[a-zA-Z\*]+$/.test(command))
       for (const atom of commandAtoms) atom.isError = true;
 
     hideSuggestionPopover(mathfield);
